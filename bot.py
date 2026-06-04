@@ -12,12 +12,12 @@ import base64
 import sys
 
 # ====================================================================
-# KHỞI TẠO BIẾN CẤU HÌNH ĐỘNG QUA TERMINAL
+# KHỞI TẠO BIẾN TOÀN CỤC CHỜ NẠP ĐỘNG TỪ TERMINAL
 # ====================================================================
 DISCORD_TOKEN = ""
 ADMIN_DISCORD_ID = 0
 
-# Khởi tạo khóa mã hóa ngẫu nhiên trong bộ nhớ RAM (Mỗi lần bật bot sẽ tự sinh khóa mới)
+# Khởi tạo khóa mã hóa ngẫu nhiên trong RAM (Tự sinh mới mỗi lần chạy bot)
 RUNTIME_KEY = secrets.token_bytes(32)
 START_TIME = time.time()
 
@@ -25,7 +25,7 @@ START_TIME = time.time()
 active_tasks = {}
 
 class SecureMemoryVault:
-    """Mạng lưới ngầm mã hóa và lưu trữ Cookie độc quyền trong RAM, không ghi file rác xuống ổ cứng"""
+    """Mạng lưới bảo vệ RAM mã hóa dữ liệu Cookie ẩn danh, không ghi log xuống ổ cứng"""
     @staticmethod
     def obfuscate(raw_cookie: str) -> str:
         encoded_bytes = raw_cookie.encode('utf-8')
@@ -258,9 +258,8 @@ class NhayMessModal(ui.Modal, title='1. Nhảy Mess + Tag Thành Viên'):
                     is_ok, err_msg = await engine.send_message_core(session, str(self.thread_id), str(self.message), str(self.target_uid))
                     
                     if not is_ok:
-                        # CHỐNG SẬP ĐỘC QUYỀN CHO ANDROID: Nếu lỗi mạng di động chập chờn, tự ngủ 15s rồi thử lại
                         if "Lỗi kết nối mạng di động" in err_msg:
-                            print(f"[RECOVERY ENGINE] Phát hiện rớt mạng ở luồng #{task_id}. Đang thử lại sau 15s...")
+                            print(f"[TERMUX RECOVERY] Rớt mạng ở luồng #{task_id}. Đang tự động kết nối lại sau 15s...")
                             await asyncio.sleep(15)
                             continue
                         
@@ -347,7 +346,7 @@ class NhayPollModal(ui.Modal, title='3. Nhảy Cuộc Thăm Dò Ý Kiến'):
             count = 0
             async with aiohttp.ClientSession() as session:
                 while True:
-                    if quantity > 0 and count >= quantity:
+                    if quantity > 0 Extent and count >= quantity:
                         await channel.send(f"✅ **[HOÀN THÀNH CHỨC NĂNG 3]** Luồng lặp tạo Poll `#{task_id}` đã hoàn tất.")
                         break
                     
@@ -421,27 +420,12 @@ class ClientBot(commands.Bot):
 
 bot = ClientBot()
 
-def run_startup_scan():
-    """Hàm quét tự chẩn đoán mã nguồn khi vừa khởi động ứng dụng"""
-    print("\n🔍 [STARTUP SCANNER] ĐANG QUÉT TOÀN DIỆN MÃ NGUỒN BOT...")
-    errors = 0
-    if DISCORD_TOKEN == "NHẬP_TOKEN_BOT_DISCORD_VÀO_ĐÂY" or not DISCORD_TOKEN:
-        print("❌ [LỖI] DISCORD_TOKEN chưa được cấu hình hợp lệ.")
-        errors += 1
-    if ADMIN_DISCORD_ID == 123456789012345678 or not isinstance(ADMIN_DISCORD_ID, int):
-        print("❌ [LỖI] ADMIN_DISCORD_ID chưa được điền dưới dạng chuỗi số nguyên.")
-        errors += 1
-    if errors > 0:
-        print(f"⚠️ [CẢNH BÁO] Phát hiện {errors} lỗi cấu hình hệ thống ban đầu!\n")
-    else:
-        print("🛡️ [HOÀN THÀNH] Toàn bộ mã nguồn sạch, RAM Key hoạt động, sẵn sàng chạy lệnh trên Termux!\n")
-
 @bot.event
 async def on_ready():
     print("=================================================")
     print(f"🤖 BOT DISCORD PYTHON ĐÃ TRỰC TUYẾN: {bot.user.name}")
+    print(f"🛡️ HỆ THỐNG PHỤC HỒI MẠNG TERMUX 24/7 ĐÃ HOẠT ĐỘNG!")
     print("=================================================")
-    run_startup_scan()
 
 @bot.tree.command(name="menu", description="Mở bảng điều khiển bảo mật (Chỉ bạn nhìn thấy)")
 async def send_menu(interaction: discord.Interaction):
@@ -465,7 +449,6 @@ async def scan_system(interaction: discord.Interaction):
     ping_start = time.time()
     fb_status = "Ngoại tuyến (Offline)"
     
-    # Đã sửa đổi sang aiohttp bất đồng bộ 100% không lo nghẽn/lag luồng gửi tin qua ID nhóm
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get("https://mbasic.facebook.com", timeout=5) as res:
