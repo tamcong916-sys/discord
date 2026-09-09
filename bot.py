@@ -496,8 +496,3 @@ if __name__ == "__main__":
         sys.exit(1)
         
     # Đồng bộ cấu hình động vào hệ thống toàn cục trước khi bot khởi chạy
-    DISCORD_TOKEN = token_input
-    ADMIN_DISCORD_ID = admin_input
-    
-    print("\n🔒 Đang mã hóa vùng RAM ngầm... Khởi động ứng dụng Discord Bot...")
-    bot.run(DISCORD_TOKEN)
